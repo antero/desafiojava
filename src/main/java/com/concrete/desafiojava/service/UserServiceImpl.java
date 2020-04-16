@@ -3,7 +3,6 @@ package com.concrete.desafiojava.service;
 import com.concrete.desafiojava.exception.AuthenticationFailureException;
 import com.concrete.desafiojava.exception.InvalidSessionException;
 import com.concrete.desafiojava.exception.UserNotFoundException;
-import com.concrete.desafiojava.model.PhoneNumber;
 import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.repository.PhoneNumberRepository;
@@ -16,10 +15,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final long EXPIRATION_TIME_IN_SECONDS = 30 * 60;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -32,17 +32,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    @Autowired
-//    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
     @Override
     public User create(User newUser) {
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        List<PhoneNumber> phones = newUser.getPhones();
-        newUser.setPhones(null);
 
         User user = userRepository.save(newUser);
-        user.setPhones(phoneRepository.saveAll(phones));
         user.setLastLogin(user.getCreated());
         user.setToken(jwtService.create(user.getPassword()));
 
@@ -50,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
+    public User findByEmail(String username) {
         return userRepository.findByEmail(username)
                              .orElseThrow(() -> new UserNotFoundException(username));
     }
@@ -68,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(UserLoginDetails details) {
-        User user = findByUsername(details.getEmail());
+        User user = findByEmail(details.getEmail());
 
         if (!passwordEncoder.matches(details.getPassword(), user.getPassword())) {
             throw new AuthenticationFailureException();
@@ -97,6 +91,6 @@ public class UserServiceImpl implements UserService {
 
     private boolean sessionExpired(LocalDateTime lastLogin) {
         Duration duration = Duration.between(lastLogin, LocalDateTime.now());
-        return duration.toSeconds() > 30 * 60;
+        return duration.toSeconds() > EXPIRATION_TIME_IN_SECONDS;
     }
 }

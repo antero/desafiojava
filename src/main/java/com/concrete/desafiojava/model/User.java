@@ -23,7 +23,7 @@ public class User {
     @Email
     private String email;
     private String password;
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     private List<PhoneNumber> phones;
     private String token;
     @CreatedDate
