@@ -3,8 +3,7 @@ package com.concrete.desafiojava.model;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,11 +11,13 @@ import java.util.List;
 @Entity
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
     @Email
     private String email;
     private String password;
+    @OneToMany
     private List<PhoneNumber> phones;
     private String token;
     @CreatedDate
@@ -24,6 +25,10 @@ public class User {
     @LastModifiedDate
     private LocalDateTime modified;
     private LocalDateTime lastLogin;
+
+    public User(String email) {
+        this.email = email;
+    }
 
     public long getId() {
         return id;
