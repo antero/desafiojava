@@ -1,14 +1,17 @@
 package com.concrete.desafiojava.validator;
 
 import com.concrete.desafiojava.model.User;
-import com.concrete.desafiojava.service.UserService;
+import com.concrete.desafiojava.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.springframework.validation.ValidationUtils;
 
+@Component("beforeCreateUserValidator")
 public class UserValidator implements Validator {
     @Autowired
-    private UserService userService;
+    private UserRepository repository;
 
     @Override
     public boolean supports(Class aClass) {
@@ -19,8 +22,16 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
 
-        if (userService.findByUsername(user.getEmail()) != null) {
-            errors.rejectValue("email", "Email ja existente");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty");
+
+        if (repository.findByEmail(user.getEmail()) != null) {
+            errors.rejectValue("email", "email.duplicate");
         }
+    }
+
+    private boolean checkInputString(String input) {
+        return (input == null || input.trim().length() == 0);
     }
 }
