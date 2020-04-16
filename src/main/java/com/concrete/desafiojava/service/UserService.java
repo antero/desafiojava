@@ -16,4 +16,6 @@ public interface UserService {
     List<User> findAll();
 
     User login(UserLoginDetails details);
+
+    User profile(UUID id, String token);
 }

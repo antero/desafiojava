@@ -1,5 +1,6 @@
 package com.concrete.desafiojava.controller;
 
+import com.concrete.desafiojava.exception.InvalidSessionException;
 import com.concrete.desafiojava.model.ErrorResponse;
 import com.concrete.desafiojava.exception.AuthenticationFailureException;
 import com.concrete.desafiojava.exception.UserNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,27 @@ public class UserController {
             ErrorResponse error = new ErrorResponse("Invalid username and/or password");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (AuthenticationFailureException e) {
+            ErrorResponse error = new ErrorResponse(e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/perfil/{id}")
+    public ResponseEntity<Object> profile(@PathVariable UUID id, @RequestBody Map<String, Object> payload) {
+        if (!payload.containsKey("token")) {
+            return new ResponseEntity<>(new ErrorResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            User user = userService.profile(id, (String) payload.get("token"));
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            ErrorResponse error = new ErrorResponse(e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        } catch (AuthenticationFailureException e) {
+            ErrorResponse error = new ErrorResponse(e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        } catch (InvalidSessionException e) {
             ErrorResponse error = new ErrorResponse(e.getMessage());
             return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
