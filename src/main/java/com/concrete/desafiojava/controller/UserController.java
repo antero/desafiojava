@@ -49,17 +49,6 @@ public class UserController {
         return new ResponseEntity<>(userService.create(newUser), HttpStatus.OK);
     }
 
-    @GetMapping("users/{id}")
-    public ResponseEntity<Object> retrieve(@PathVariable UUID id) {
-        try {
-            User user = userService.findById(id);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
-    }
-
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginDetails loginDetails) {
         try {
