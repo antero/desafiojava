@@ -1,8 +1,10 @@
 package com.concrete.desafiojava.service;
 
+import com.concrete.desafiojava.exception.AuthenticationFailureException;
 import com.concrete.desafiojava.exception.UserNotFoundException;
 import com.concrete.desafiojava.model.PhoneNumber;
 import com.concrete.desafiojava.model.User;
+import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.repository.PhoneNumberRepository;
 import com.concrete.desafiojava.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +53,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User login(UserLoginDetails details) {
+        User user = findByUsername(details.getEmail());
+
+        if (!user.getPassword().equals(details.getPassword())) {
+            throw new AuthenticationFailureException();
+        }
+
+        return user;
     }
 }

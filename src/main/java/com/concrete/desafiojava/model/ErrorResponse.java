@@ -1,4 +1,4 @@
-package com.concrete.desafiojava.error;
+package com.concrete.desafiojava.model;
 
 public class ErrorResponse {
     String message;
