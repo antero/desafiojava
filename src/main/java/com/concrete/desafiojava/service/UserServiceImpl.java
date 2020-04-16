@@ -9,6 +9,7 @@ import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.repository.PhoneNumberRepository;
 import com.concrete.desafiojava.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -28,12 +29,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private JWTService jwtService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 //    @Autowired
 //    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public User create(User newUser) {
-//        newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         List<PhoneNumber> phones = newUser.getPhones();
         newUser.setPhones(null);
 
@@ -66,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public User login(UserLoginDetails details) {
         User user = findByUsername(details.getEmail());
 
-        if (!user.getPassword().equals(details.getPassword())) {
+        if (!passwordEncoder.matches(details.getPassword(), user.getPassword())) {
             throw new AuthenticationFailureException();
         }
 
