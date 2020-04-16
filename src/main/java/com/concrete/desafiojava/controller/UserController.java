@@ -15,6 +15,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("users/{id}")
-    public ResponseEntity<Object> retrieve(@PathVariable Long id) {
+    public ResponseEntity<Object> retrieve(@PathVariable UUID id) {
         try {
             User user = userService.findById(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
