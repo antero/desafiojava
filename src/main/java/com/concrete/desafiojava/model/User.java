@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames="email"))
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
