@@ -2,12 +2,14 @@ package com.concrete.desafiojava;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-public class DesafiojavaApplication {
+@EnableJpaAuditing
+public class WebApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DesafiojavaApplication.class, args);
+		SpringApplication.run(WebApplication.class, args);
 	}
 
 }
