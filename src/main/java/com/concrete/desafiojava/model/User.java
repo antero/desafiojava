@@ -2,6 +2,7 @@ package com.concrete.desafiojava.model;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames="email"))
 public class User {
     @Id
@@ -26,10 +28,6 @@ public class User {
     @LastModifiedDate
     private LocalDateTime modified;
     private LocalDateTime lastLogin;
-
-    public User(String email) {
-        this.email = email;
-    }
 
     public long getId() {
         return id;
