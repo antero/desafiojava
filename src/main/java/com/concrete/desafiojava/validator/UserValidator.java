@@ -8,7 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
 
-@Component("beforeCreateUserValidator")
+@Component
 public class UserValidator implements Validator {
     @Autowired
     private UserRepository repository;
@@ -22,12 +22,12 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.empty");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty", "Name is empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.empty", "Email is empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty", "Password is empty");
 
         if (repository.findByEmail(user.getEmail()) != null) {
-            errors.rejectValue("email", "email.duplicate");
+            errors.rejectValue("email", "email.duplicate", "Email already exists");
         }
     }
 
