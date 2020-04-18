@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping("/usuarios")
     public ResponseEntity<Object>  list() {
         return ResponseEntity.ok(userService.findAll());
     }
