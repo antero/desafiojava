@@ -32,6 +32,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User newUser) {
+        try {
+            findByEmail(newUser.getEmail());
+            throw new EmailAlreadyExistsException(newUser.getEmail());
+        } catch (UserNotFoundException e) {}
+
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
         User user = userRepository.save(newUser);
@@ -42,9 +47,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String username) {
-        return userRepository.findByEmail(username)
-                             .orElseThrow(() -> new UserNotFoundException(username));
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                             .orElseThrow(() -> new UserNotFoundException(email));
     }
 
     @Override

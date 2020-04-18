@@ -47,6 +47,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public final ResponseEntity<Object> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse("Email already exists", getDetailsFromException(ex));
+        return new ResponseEntity(error, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(EmptyTokenException.class)
     public final ResponseEntity<Object> handleEmptyTokenException(EmptyTokenException ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse("Unauthorized", getDetailsFromException(ex));

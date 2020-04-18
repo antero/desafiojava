@@ -22,7 +22,7 @@ public class User {
     private UUID id;
     @NotEmpty(message = "Name must not be empty")
     private String name;
-    @Email
+    @Email(message = "Email must be a valid email")
     @NotEmpty(message = "Email must not be empty")
     private String email;
     @NotEmpty(message = "Password must not be empty")
