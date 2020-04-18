@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,9 +20,12 @@ public class User {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
+    @NotEmpty(message = "Name must not be empty")
     private String name;
     @Email
+    @NotEmpty(message = "Email must not be empty")
     private String email;
+    @NotEmpty(message = "Password must not be empty")
     private String password;
     @OneToMany(cascade = {CascadeType.ALL})
     private List<PhoneNumber> phones;

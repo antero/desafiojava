@@ -1,86 +1,43 @@
 package com.concrete.desafiojava.controller;
 
-import com.concrete.desafiojava.exception.InvalidSessionException;
-import com.concrete.desafiojava.model.ErrorResponse;
-import com.concrete.desafiojava.exception.AuthenticationFailureException;
-import com.concrete.desafiojava.exception.UserNotFoundException;
+import com.concrete.desafiojava.exception.EmptyTokenException;
 import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.service.UserService;
-import com.concrete.desafiojava.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserValidator userValidator;
-
-
     @GetMapping("/users")
     public ResponseEntity<Object>  list() {
-        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+        return ResponseEntity.ok(userService.findAll());
     }
 
     @PostMapping("/cadastro")
-    public ResponseEntity<Object>  create(@RequestBody User newUser) {
-        Errors errors = new BeanPropertyBindingResult(newUser, "user");
-        userValidator.validate(newUser, errors);
-
-        if (errors.hasErrors()) {
-            List<ErrorResponse> errorsResponse = errors.getAllErrors().stream()
-                                                                      .map(e -> new ErrorResponse(e.getDefaultMessage()))
-                                                                      .collect(Collectors.toList());
-            return new ResponseEntity<>(errorsResponse, HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(userService.create(newUser), HttpStatus.OK);
+    public ResponseEntity<Object>  create(@Valid @RequestBody User newUser) {
+        return ResponseEntity.ok(userService.create(newUser));
     }
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginDetails loginDetails) {
-        try {
-            User user = userService.login(loginDetails);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            ErrorResponse error = new ErrorResponse("Invalid username and/or password");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (AuthenticationFailureException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        }
+        return ResponseEntity.ok(userService.login(loginDetails));
     }
 
     @GetMapping("/perfil/{id}")
     public ResponseEntity<Object> profile(@PathVariable UUID id, @RequestBody Map<String, Object> payload) {
         if (!payload.containsKey("token")) {
-            return new ResponseEntity<>(new ErrorResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+            throw new EmptyTokenException();
         }
-
-        try {
-            User user = userService.profile(id, (String) payload.get("token"));
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (AuthenticationFailureException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        } catch (InvalidSessionException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        }
+        User user = userService.profile(id, (String) payload.get("token"));
+        return ResponseEntity.ok(user);
     }
 }

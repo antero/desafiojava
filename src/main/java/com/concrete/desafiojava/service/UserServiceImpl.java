@@ -1,8 +1,6 @@
 package com.concrete.desafiojava.service;
 
-import com.concrete.desafiojava.exception.AuthenticationFailureException;
-import com.concrete.desafiojava.exception.InvalidSessionException;
-import com.concrete.desafiojava.exception.UserNotFoundException;
+import com.concrete.desafiojava.exception.*;
 import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.repository.PhoneNumberRepository;
@@ -79,11 +77,12 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
 
         if (!jwtService.verify(token, user.getPassword())) {
-            throw new AuthenticationFailureException();
+            throw new TokenMismatchException();
         }
 
         if (sessionExpired(user.getLastLogin())) {
-            throw new InvalidSessionException();
+            String expiryTime = EXPIRATION_TIME_IN_SECONDS / 60 + " minutes";
+            throw new InvalidSessionException(expiryTime);
         }
 
         return user;

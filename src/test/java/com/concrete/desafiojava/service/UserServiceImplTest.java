@@ -2,6 +2,7 @@ package com.concrete.desafiojava.service;
 
 import com.concrete.desafiojava.exception.AuthenticationFailureException;
 import com.concrete.desafiojava.exception.InvalidSessionException;
+import com.concrete.desafiojava.exception.TokenMismatchException;
 import com.concrete.desafiojava.exception.UserNotFoundException;
 import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
@@ -115,8 +116,8 @@ class UserServiceImplTest {
     }
 
     @Test
-    void profileThrowsAuthenticationFailure() {
-        assertThrows(AuthenticationFailureException.class, () -> userService.profile(testUserSaved.getId(), "wrongtoken"));
+    void profileThrowsTokenMismatchException() {
+        assertThrows(TokenMismatchException.class, () -> userService.profile(testUserSaved.getId(), "wrongtoken"));
     }
 
     @Test
