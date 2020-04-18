@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -78,10 +79,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User profile(UUID id, String token) {
+    public User profile(UUID id, Map<String, Object> payload) {
+        if (!payload.containsKey("token")) {
+            throw new EmptyTokenException();
+        }
+
         User user = findById(id);
 
-        if (!jwtService.verify(token, user.getPassword())) {
+        if (!jwtService.verify((String) payload.get("token"), user.getPassword())) {
             throw new TokenMismatchException();
         }
 

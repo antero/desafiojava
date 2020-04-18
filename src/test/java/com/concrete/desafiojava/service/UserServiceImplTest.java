@@ -1,9 +1,6 @@
 package com.concrete.desafiojava.service;
 
-import com.concrete.desafiojava.exception.AuthenticationFailureException;
-import com.concrete.desafiojava.exception.InvalidSessionException;
-import com.concrete.desafiojava.exception.TokenMismatchException;
-import com.concrete.desafiojava.exception.UserNotFoundException;
+import com.concrete.desafiojava.exception.*;
 import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
 import com.concrete.desafiojava.repository.UserRepository;
@@ -15,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,12 +58,22 @@ class UserServiceImplTest {
     }
 
     @Test
+    void createThrowsEmailAlreadyExistsException() {
+        User newUser = new User();
+        newUser.setName("Vengeful Spirit");
+        newUser.setEmail(testUserSaved.getEmail());
+        newUser.setPassword("magicmissile");
+
+        assertThrows(EmailAlreadyExistsException.class, () -> userService.create(newUser));
+    }
+
+    @Test
     void findByEmail() {
         assertDoesNotThrow(() -> userService.findByEmail("test@user.com"));
     }
 
     @Test
-    void findByEmailThrowsException() {
+    void findByEmailThrowsUserNotFoundException() {
         assertThrows(UserNotFoundException.class, () -> userService.findByEmail(""));
     }
 
@@ -75,7 +83,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void findByIdThrowsException() {
+    void findByIdThrowsUserNotFoundException() {
         assertThrows(UserNotFoundException.class, () -> userService.findById(UUID.randomUUID()));
     }
 
@@ -105,19 +113,23 @@ class UserServiceImplTest {
     }
 
     @Test
-    void loginThrowsException() {
+    void loginThrowsAuthenticationFailureException() {
         UserLoginDetails loginDetails = new UserLoginDetails("test@user.com", "wrongpassword");
         assertThrows(AuthenticationFailureException.class, () -> userService.login(loginDetails));
     }
 
     @Test
     void profile() {
-        assertDoesNotThrow(() -> userService.profile(testUserSaved.getId(), testUserSaved.getToken()));
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("token", testUserSaved.getToken());
+        assertDoesNotThrow(() -> userService.profile(testUserSaved.getId(), payload));
     }
 
     @Test
     void profileThrowsTokenMismatchException() {
-        assertThrows(TokenMismatchException.class, () -> userService.profile(testUserSaved.getId(), "wrongtoken"));
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("token", "wrongtoken");
+        assertThrows(TokenMismatchException.class, () -> userService.profile(testUserSaved.getId(), payload));
     }
 
     @Test
@@ -125,6 +137,13 @@ class UserServiceImplTest {
         LocalDateTime loginTime = testUserSaved.getLastLogin().minusMinutes(31);
         testUserSaved.setLastLogin(loginTime);
         userRepository.save(testUserSaved);
-        assertThrows(InvalidSessionException.class, () -> userService.profile(testUserSaved.getId(), testUserSaved.getToken()));
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("token", testUserSaved.getToken());
+        assertThrows(InvalidSessionException.class, () -> userService.profile(testUserSaved.getId(), payload));
+    }
+
+    @Test
+    void profileThrowsEmptyTokenException() {
+        assertThrows(EmptyTokenException.class, () -> userService.profile(testUserSaved.getId(), new HashMap<>()));
     }
 }

@@ -4,6 +4,7 @@ import com.concrete.desafiojava.model.User;
 import com.concrete.desafiojava.model.UserLoginDetails;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface UserService {
@@ -17,5 +18,5 @@ public interface UserService {
 
     User login(UserLoginDetails details);
 
-    User profile(UUID id, String token);
+    User profile(UUID id, Map<String, Object> payload);
 }
